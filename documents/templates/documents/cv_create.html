@@ -1,0 +1,373 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}Create CV{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Create Your CV</h2>
+    <form method="post" id="cv-form" class="needs-validation" novalidate enctype="multipart/form-data" action="{% url 'documents:cv_create' %}">
+        {% csrf_token %}
+        
+        <!-- CV Title -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>CV Title</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Title</label>
+                    {{ form.title|addclass:"form-control" }}
+                    <div class="form-text">Give your CV a title for easy reference</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Personal Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_full_name" class="form-label">Full Name</label>
+                        {{ form.full_name|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        {{ form.email|addclass:"form-control" }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_phone_number" class="form-label">Phone Number</label>
+                        {{ form.phone_number|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_address" class="form-label">Address</label>
+                        {{ form.address|addclass:"form-control" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bio Data -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Bio Data</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_gender" class="form-label">Gender</label>
+                        {{ form.gender|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_date_of_birth" class="form-label">Date of Birth</label>
+                        {{ form.date_of_birth|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_nationality" class="form-label">Nationality</label>
+                        {{ form.nationality|addclass:"form-control" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Profile -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Personal Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.personal_profile|addclass:"form-control" }}
+                    <div class="form-text">{{ form.personal_profile.help_text }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Work Experience</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-work-experience">
+                    Add Work Experience
+                </button>
+            </div>
+            <div class="card-body" id="work-experience-container">
+                <!-- Work experience entries will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Education</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-education">
+                    Add Education
+                </button>
+            </div>
+            <div class="card-body" id="education-container">
+                <!-- Education entries will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Skills</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-skill">
+                    Add Skill
+                </button>
+            </div>
+            <div class="card-body" id="skills-container">
+                <!-- Skills will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Certifications</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-certification">
+                    Add Certification
+                </button>
+            </div>
+            <div class="card-body" id="certifications-container">
+                <!-- Certifications will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Languages</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-language">
+                    Add Language
+                </button>
+            </div>
+            <div class="card-body" id="languages-container">
+                <!-- Languages will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Hobbies -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Hobbies & Interests</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-hobby">
+                    Add Hobby
+                </button>
+            </div>
+            <div class="card-body" id="hobbies-container">
+                <!-- Hobbies will be added here dynamically -->
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">Generate CV</button>
+        </div>
+    </form>
+</div>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    <strong>Please correct the following errors:</strong>
+    {{ form.errors }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Work Experience (already implemented)
+    const workExperienceContainer = document.getElementById('work-experience-container');
+    document.getElementById('add-work-experience').addEventListener('click', function() {
+        const workExp = document.createElement('div');
+        workExp.className = 'work-experience-entry border-bottom pb-3 mb-3';
+        workExp.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" class="form-control" name="job_title[]" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="form-control" name="company_name[]" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" name="work_location[]" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="work_start_date[]" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="work_end_date[]">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Responsibilities & Achievements</label>
+                <textarea class="form-control" name="work_responsibilities[]" rows="3" required></textarea>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        workExperienceContainer.appendChild(workExp);
+    });
+
+    // Education
+    const educationContainer = document.getElementById('education-container');
+    document.getElementById('add-education').addEventListener('click', function() {
+        const education = document.createElement('div');
+        education.className = 'education-entry border-bottom pb-3 mb-3';
+        education.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Degree/Certificate</label>
+                    <input type="text" class="form-control" name="degree[]" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Institution</label>
+                    <input type="text" class="form-control" name="institution[]" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" name="education_location[]" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="education_start_date[]" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="education_end_date[]">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Grade</label>
+                    <input type="text" class="form-control" name="grade[]">
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        educationContainer.appendChild(education);
+    });
+
+    // Skills
+    const skillsContainer = document.getElementById('skills-container');
+    document.getElementById('add-skill').addEventListener('click', function() {
+        const skill = document.createElement('div');
+        skill.className = 'skill-entry d-flex align-items-center gap-2 mb-2';
+        skill.innerHTML = `
+            <input type="text" class="form-control" name="skill_name[]" placeholder="Skill" required>
+            <select class="form-select" name="skill_type[]" required>
+                <option value="hard">Hard Skill</option>
+                <option value="soft">Soft Skill</option>
+            </select>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        skillsContainer.appendChild(skill);
+    });
+
+    // Certifications
+    const certificationsContainer = document.getElementById('certifications-container');
+    document.getElementById('add-certification').addEventListener('click', function() {
+        const cert = document.createElement('div');
+        cert.className = 'certification-entry border-bottom pb-3 mb-3';
+        cert.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Certificate Name</label>
+                    <input type="text" class="form-control" name="certificate_name[]" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Issuing Organization</label>
+                    <input type="text" class="form-control" name="issuing_organization[]" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Date Earned</label>
+                    <input type="date" class="form-control" name="date_earned[]" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        certificationsContainer.appendChild(cert);
+    });
+
+    // Languages
+    const languagesContainer = document.getElementById('languages-container');
+    document.getElementById('add-language').addEventListener('click', function() {
+        const lang = document.createElement('div');
+        lang.className = 'language-entry d-flex align-items-center gap-2 mb-2';
+        lang.innerHTML = `
+            <input type="text" class="form-control" name="language[]" placeholder="Language" required>
+            <select class="form-select" name="proficiency[]" required>
+                <option value="basic">Basic</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="fluent">Fluent</option>
+                <option value="native">Native</option>
+            </select>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        languagesContainer.appendChild(lang);
+    });
+
+    // Hobbies
+    const hobbiesContainer = document.getElementById('hobbies-container');
+    document.getElementById('add-hobby').addEventListener('click', function() {
+        const hobby = document.createElement('div');
+        hobby.className = 'hobby-entry d-flex align-items-center gap-2 mb-2';
+        hobby.innerHTML = `
+            <input type="text" class="form-control" name="hobby[]" placeholder="Hobby/Interest" required>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        hobbiesContainer.appendChild(hobby);
+    });
+
+    // Form validation and submission
+    const form = document.getElementById('cv-form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+
+        // Add event handler for dynamic fields
+        const formData = new FormData(form);
+        
+        // Prevent default only if validation fails
+        if (!form.checkValidity()) {
+            event.preventDefault();
+        }
+    });
+
+    // Remove entry functionality for all dynamic sections
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-entry')) {
+            e.target.closest('.work-experience-entry, .education-entry, .skill-entry, .certification-entry, .language-entry, .hobby-entry').remove();
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}
+    {% if form.instance.id %}Edit{% else %}Add{% endif %} Interview Question
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        {% if form.instance.id %}Edit{% else %}Add{% endif %} Interview Question
+                    </h2>
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Industry</label>
+                            {{ form.industry|addclass:"form-select" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Question Type</label>
+                            {{ form.question_type|addclass:"form-select" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Question</label>
+                            {{ form.question|addclass:"form-control" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Suggested Answer</label>
+                            {{ form.answer|addclass:"form-control" }}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Save Question</button>
+                            <a href="{% url 'interviews:question_list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

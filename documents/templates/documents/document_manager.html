@@ -1,0 +1,194 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Document Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Folder Navigation Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1 text-muted">
+                    <span>Folders</span>
+                    <button class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#newFolderModal">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if not current_folder %}active{% endif %}" 
+                           href="{% url 'documents:document_manager' %}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    {% for folder in folders %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if current_folder.id == folder.id %}active{% endif %}" 
+                               href="{% url 'documents:document_manager' %}?folder={{ folder.id }}">
+                                <i class="bi bi-folder"></i> {{ folder.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Document Types</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if doc_type == 'cv' %}active{% endif %}" 
+                           href="?type=cv">
+                            <i class="bi bi-file-text"></i> CVs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if doc_type == 'cover_letter' %}active{% endif %}" 
+                           href="?type=cover_letter">
+                            <i class="bi bi-file-text"></i> Cover Letters
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{{ current_folder.name|default:"All Documents" }}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            Upload Document
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown">
+                            Sort by
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?sort=name">Name</a></li>
+                            <li><a class="dropdown-item" href="?sort=date">Date</a></li>
+                            <li><a class="dropdown-item" href="?sort=type">Type</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this after the header section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form class="d-flex" method="get">
+                        <input class="form-control me-2" type="search" placeholder="Search documents..." 
+                               name="search" value="{{ search_query|default:'' }}">
+                        <button class="btn btn-outline-primary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Document Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for doc in documents %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">{{ doc.title }}</h5>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-link" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="{{ doc.file.url }}">Download</a></li>
+                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" 
+                                                   data-bs-target="#moveModal" data-doc-id="{{ doc.id }}">Move</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form method="post" action="{% url 'documents:document_delete' doc.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        {{ doc.get_document_type_display }} • 
+                                        {{ doc.created_at|date:"M d, Y" }}
+                                    </small>
+                                </p>
+                                {% if doc.tags %}
+                                    <div class="mt-2">
+                                        {% for tag in doc.tags %}
+                                            <span class="badge bg-secondary">{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">No documents found in this location</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Add pagination at the bottom -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <nav aria-label="Document pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% include 'documents/includes/new_folder_modal.html' %}
+{% include 'documents/includes/upload_modal.html' %}
+{% include 'documents/includes/move_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize move modal
+    const moveModal = document.getElementById('moveModal');
+    if (moveModal) {
+        moveModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const docId = button.getAttribute('data-doc-id');
+            const form = moveModal.querySelector('form');
+            form.action = `/documents/move/${docId}/`;
+        });
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,26 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+} 

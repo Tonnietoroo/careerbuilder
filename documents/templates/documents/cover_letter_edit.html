@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}Edit Cover Letter{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Edit Cover Letter</h2>
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Cover Letter Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id_cv" class="form-label">Select CV</label>
+                    {{ form.cv|addclass:"form-control" }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_job_title" class="form-label">Job Title</label>
+                    {{ form.job_title|addclass:"form-control" }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_company_name" class="form-label">Company Name</label>
+                    {{ form.company_name|addclass:"form-control" }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_company_address" class="form-label">Company Address</label>
+                    {{ form.company_address|addclass:"form-control" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Update Cover Letter</button>
+            <a href="{% url 'documents:cover_letter_preview' cover_letter.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

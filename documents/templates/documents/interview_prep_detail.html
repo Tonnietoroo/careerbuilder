@@ -1,0 +1,118 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Interview Preparation - {{ prep.job_title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h2>Interview Preparation</h2>
+        <a href="{% url 'documents:interview_prep_list' %}" class="btn btn-outline-primary">Back to List</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Interview Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Interview Details</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Position:</strong> {{ prep.job_title }}</p>
+                    <p><strong>Company:</strong> {{ prep.company_name }}</p>
+                    <p><strong>Interview Date:</strong> {{ prep.interview_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+
+            <!-- Interview Questions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Suggested Questions & Answers</h4>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="questionsAccordion">
+                        {% for question in questions %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#question{{ forloop.counter }}">
+                                    {{ question.question }}
+                                </button>
+                            </h2>
+                            <div id="question{{ forloop.counter }}" 
+                                 class="accordion-collapse collapse" 
+                                 data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    {{ question.answer|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Preparation Tips -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Preparation Tips</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Before the Interview</h5>
+                    <ul class="list-unstyled">
+                        <li>✓ Research {{ prep.company_name }} thoroughly</li>
+                        <li>✓ Review the job description</li>
+                        <li>✓ Practice your responses</li>
+                        <li>✓ Prepare relevant examples</li>
+                        <li>✓ Plan your outfit</li>
+                    </ul>
+
+                    <h5 class="mt-4">Day of Interview</h5>
+                    <ul class="list-unstyled">
+                        <li>✓ Arrive 10-15 minutes early</li>
+                        <li>✓ Bring extra copies of your CV</li>
+                        <li>✓ Bring a notepad and pen</li>
+                        <li>✓ Turn off your phone</li>
+                    </ul>
+
+                    <h5 class="mt-4">Questions to Ask</h5>
+                    <ul class="list-unstyled">
+                        <li>• What does success look like in this role?</li>
+                        <li>• What are the team's biggest challenges?</li>
+                        <li>• What are the next steps in the process?</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Resources -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Additional Resources</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li>📝 <a href="#">Common Interview Questions</a></li>
+                        <li>👔 <a href="#">Interview Dress Code</a></li>
+                        <li>💼 <a href="#">Body Language Tips</a></li>
+                        <li>🤝 <a href="#">Follow-up Email Templates</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %} 

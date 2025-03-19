@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}Create Cover Letter{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Create New Cover Letter</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_cv" class="form-label">Select CV</label>
+                            {{ form.cv }}
+                            {% if form.cv.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.cv.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_job_title" class="form-label">Job Title</label>
+                            {{ form.job_title }}
+                            {% if form.job_title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.job_title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_company_name" class="form-label">Company Name</label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_company_address" class="form-label">Company Address (Optional)</label>
+                            {{ form.company_address }}
+                            {% if form.company_address.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company_address.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Generate Cover Letter</button>
+                            <a href="{% url 'documents:cover_letter_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

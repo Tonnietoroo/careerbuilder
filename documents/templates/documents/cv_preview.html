@@ -1,0 +1,189 @@
+{% extends 'core/base.html' %}
+
+{% block title %}CV Preview - {{ cv.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">{{ cv.title }}</h1>
+
+    <!-- Personal Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Personal Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Full Name:</strong> {{ personal_info.full_name }}</p>
+                    <p><strong>Email:</strong> {{ personal_info.email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Phone:</strong> {{ personal_info.phone_number }}</p>
+                    <p><strong>Address:</strong> {{ personal_info.address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bio Data -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Bio Data</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Gender:</strong> {{ bio_data.gender }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Date of Birth:</strong> {{ bio_data.date_of_birth }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Nationality:</strong> {{ bio_data.nationality }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Profile -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Personal Profile</h4>
+        </div>
+        <div class="card-body">
+            <p>{{ personal_profile }}</p>
+        </div>
+    </div>
+
+    <!-- Work Experience -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Work Experience</h4>
+        </div>
+        <div class="card-body">
+            {% for work in work_experience %}
+            <div class="mb-4">
+                <h5>{{ work.job_title }} at {{ work.company_name }}</h5>
+                <p class="text-muted">{{ work.location }} | {{ work.start_date }} - {{ work.end_date|default:"Present" }}</p>
+                <ul>
+                    {% for resp in work.responsibilities %}
+                        <li>{{ resp }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Education -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Education</h4>
+        </div>
+        <div class="card-body">
+            {% for edu in education %}
+            <div class="mb-4">
+                <h5>{{ edu.degree }}</h5>
+                <p class="text-muted">{{ edu.institution }} - {{ edu.location }}</p>
+                <p>{{ edu.start_date }} - {{ edu.end_date|default:"Present" }}</p>
+                {% if edu.grade %}
+                <p><strong>Grade:</strong> {{ edu.grade }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Skills</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Hard Skills</h5>
+                    <ul>
+                        {% for skill in skills %}
+                            {% if skill.type == 'hard' %}
+                                <li>{{ skill.name }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Soft Skills</h5>
+                    <ul>
+                        {% for skill in skills %}
+                            {% if skill.type == 'soft' %}
+                                <li>{{ skill.name }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certifications -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Certifications</h4>
+        </div>
+        <div class="card-body">
+            {% for cert in certifications %}
+            <div class="mb-3">
+                <h5>{{ cert.certificate_name }}</h5>
+                <p>{{ cert.issuing_organization }} - {{ cert.date_earned }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Languages -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Languages</h4>
+        </div>
+        <div class="card-body">
+            {% for lang in languages %}
+            <p><strong>{{ lang.language }}:</strong> {{ lang.proficiency|title }}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Hobbies -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Hobbies & Interests</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for hobby in hobbies %}
+                    <li>{{ hobby }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-4">
+        <a href="{% url 'documents:cv_edit' cv.id %}" class="btn btn-primary">Edit CV</a>
+        
+        <!-- Download Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" id="downloadDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Download CV
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadDropdown">
+                <li><a class="dropdown-item" href="{% url 'documents:cv_download' cv.id %}?format=pdf">Download as PDF</a></li>
+                <li><a class="dropdown-item" href="{% url 'documents:cv_download' cv.id %}?format=docx">Download as Word</a></li>
+            </ul>
+        </div>
+
+        <form method="post" action="{% url 'documents:cv_delete' cv.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this CV?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete CV</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

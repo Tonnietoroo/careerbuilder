@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My CVs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My CVs</h2>
+        <a href="{% url 'documents:cv_create' %}" class="btn btn-primary">Create New CV</a>
+    </div>
+
+    {% if cvs %}
+        <div class="row">
+            {% for cv in cvs %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ cv.title }}</h5>
+                            <p class="card-text text-muted">
+                                Created: {{ cv.created_at|date:"M d, Y" }}<br>
+                                Last Updated: {{ cv.updated_at|date:"M d, Y" }}
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'documents:cv_preview' cv.id %}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{% url 'documents:cv_edit' cv.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                                <form method="post" action="{% url 'documents:cv_delete' cv.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Are you sure you want to delete this CV?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3>You haven't created any CVs yet</h3>
+            <p class="text-muted">Get started by creating your first CV!</p>
+            <a href="{% url 'documents:cv_create' %}" class="btn btn-primary">Create CV</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

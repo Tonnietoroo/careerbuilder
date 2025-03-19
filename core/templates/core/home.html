@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Welcome to CareerBuilder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row align-items-center min-vh-75">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-4">Build Your Career Path</h1>
+            <p class="lead mb-4">
+                Create professional CVs, generate tailored cover letters, and prepare for interviews 
+                with our AI-powered career tools.
+            </p>
+            {% if not user.is_authenticated %}
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Get Started</a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-4">Sign In</a>
+                </div>
+            {% else %}
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'documents:cv_list' %}" class="btn btn-primary btn-lg px-4">My CVs</a>
+                    <a href="{% url 'documents:document_manager' %}" class="btn btn-outline-primary btn-lg px-4">Document Manager</a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <img src="{% static 'core/img/com-logo-5.jpg' %}" alt="Career Builder" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>Professional CVs</h3>
+                    <p>Create stunning CVs with our easy-to-use builder and professional templates.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>AI Cover Letters</h3>
+                    <p>Generate tailored cover letters using AI based on your CV and job requirements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>Interview Prep</h3>
+                    <p>Practice with AI-generated interview questions specific to your industry.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

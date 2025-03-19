@@ -1,0 +1,133 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Edit Profile</h2>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <h5 class="mb-3">Personal Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Profile Picture</label>
+                                {{ form.profile_picture }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                {{ form.phone_number }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Address</label>
+                                {{ form.address }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Bio</label>
+                                {{ form.bio }}
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <h5 class="mb-3">Professional Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Job Title</label>
+                                {{ form.job_title }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Company</label>
+                                {{ form.company }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Industry</label>
+                                {{ form.industry }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Years of Experience</label>
+                                {{ form.years_of_experience }}
+                            </div>
+                        </div>
+
+                        <!-- Social Links -->
+                        <h5 class="mb-3">Social Links</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">LinkedIn</label>
+                                {{ form.linkedin }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">GitHub</label>
+                                {{ form.github }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Portfolio</label>
+                                {{ form.portfolio }}
+                            </div>
+                        </div>
+
+                        <!-- Career Preferences -->
+                        <h5 class="mb-3">Career Preferences</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Preferred Job Type</label>
+                                {{ form.preferred_job_type }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Preferred Location</label>
+                                {{ form.preferred_location }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Expected Salary</label>
+                                {{ form.expected_salary }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.remote_work }}
+                                    <label class="form-check-label">Open to Remote Work</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="mb-3">
+                            <label class="form-label">Skills</label>
+                            <div class="skills-container mb-2">
+                                {% for skill in profile.skills %}
+                                    <span class="skill-tag me-2 mb-2">
+                                        {{ skill }}
+                                        <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            <input type="text" id="skill-input" class="form-control" placeholder="Type a skill and press Enter">
+                            <input type="hidden" name="skills" id="skills" value="{{ profile.skills|json }}">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'profiles:profile_view' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'profiles/js/profile.js' %}"></script>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'profiles/css/style.css' %}">
+{% endblock %} 

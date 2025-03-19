@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Add Education{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Add Education</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Institution</label>
+                            {{ form.institution }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Degree</label>
+                            {{ form.degree }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Field of Study</label>
+                            {{ form.field_of_study }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date</label>
+                                {{ form.start_date }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date</label>
+                                {{ form.end_date }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.current }}
+                                <label class="form-check-label">Currently Studying</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description (Optional)</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Save Education</button>
+                            <a href="{% url 'profiles:profile_view' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

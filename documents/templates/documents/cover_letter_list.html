@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Cover Letters{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Cover Letters</h2>
+        <a href="{% url 'documents:cover_letter_create' %}" class="btn btn-primary">Create New Cover Letter</a>
+    </div>
+
+    {% if cover_letters %}
+        <div class="row">
+            {% for letter in cover_letters %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ letter.job_title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ letter.company_name }}</h6>
+                            <p class="card-text">
+                                Created: {{ letter.created_at|date:"M d, Y" }}<br>
+                                Based on CV: {{ letter.cv.title }}
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'documents:cover_letter_preview' letter.id %}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{% url 'documents:cover_letter_edit' letter.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                                <form method="post" action="{% url 'documents:cover_letter_delete' letter.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Are you sure you want to delete this cover letter?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3>You haven't created any cover letters yet</h3>
+            <p class="text-muted">Get started by creating your first cover letter!</p>
+            <a href="{% url 'documents:cover_letter_create' %}" class="btn btn-primary">Create Cover Letter</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

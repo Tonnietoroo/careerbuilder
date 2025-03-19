@@ -1,0 +1,21 @@
+# Ignore virtual environment
+career_env/
+
+# Ignore database files
+db.sqlite3
+
+# Ignore IDE/editor settings
+.vscode/
+.idea/
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore media and static files
+/media/
+/staticfiles/
+
+# Ignore environment variables
+.env

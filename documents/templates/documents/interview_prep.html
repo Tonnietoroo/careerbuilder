@@ -1,0 +1,102 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}Interview Preparation{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Prepare for Your Interview</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="post" id="interview-prep-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Job Title</label>
+                            {{ form.job_title|addclass:"form-control" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Company Name</label>
+                            {{ form.company_name|addclass:"form-control" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Interview Date</label>
+                            {{ form.interview_date|addclass:"form-control" }}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Generate Interview Tips</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if questions %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Suggested Interview Questions</h3>
+                    
+                    <div class="accordion" id="questionsAccordion">
+                        {% for question in questions %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#question{{ forloop.counter }}">
+                                    {{ question.question }}
+                                </button>
+                            </h2>
+                            <div id="question{{ forloop.counter }}" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {{ question.answer }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tips</h5>
+                    <ul class="list-unstyled">
+                        <li>✓ Research the company beforehand</li>
+                        <li>✓ Review common interview questions</li>
+                        <li>✓ Prepare relevant examples</li>
+                        <li>✓ Dress professionally</li>
+                        <li>✓ Arrive 10-15 minutes early</li>
+                        <li>✓ Bring extra copies of your CV</li>
+                        <li>✓ Prepare questions to ask</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('interview-prep-form');
+    
+    form.addEventListener('submit', function(e) {
+        const jobTitle = form.querySelector('[name="job_title"]').value;
+        const companyName = form.querySelector('[name="company_name"]').value;
+        
+        if (!jobTitle || !companyName) {
+            e.preventDefault();
+            alert('Please fill in both job title and company name.');
+        }
+    });
+});
+</script>
+{% endblock %} 

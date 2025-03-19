@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+
+{% block title %}
+    {% if form.instance.id %}Edit{% else %}Create{% endif %} Interview Preparation
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        {% if form.instance.id %}Edit{% else %}Create{% endif %} Interview Preparation
+                    </h2>
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Industry</label>
+                            {{ form.industry|addclass:"form-select" }}
+                            {% if form.industry.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.industry.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Company Name</label>
+                            {{ form.company_name|addclass:"form-control" }}
+                            {% if form.company_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company_name.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Position</label>
+                            {{ form.position|addclass:"form-control" }}
+                            {% if form.position.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.position.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Interview Date & Time</label>
+                            {{ form.interview_date|addclass:"form-control" }}
+                            {% if form.interview_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.interview_date.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            {{ form.notes|addclass:"form-control" }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notes.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.id %}Update{% else %}Create{% endif %}
+                            </button>
+                            <a href="{% url 'interviews:interview_list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

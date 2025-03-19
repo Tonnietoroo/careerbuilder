@@ -1,0 +1,445 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block title %}Edit CV{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Edit Your CV</h2>
+    <form method="post" id="cv-form" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- CV Title -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>CV Title</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Title</label>
+                    {{ form.title|addclass:"form-control" }}
+                    <div class="form-text">Give your CV a title for easy reference</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Personal Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_full_name" class="form-label">Full Name</label>
+                        {{ form.full_name|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        {{ form.email|addclass:"form-control" }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_phone_number" class="form-label">Phone Number</label>
+                        {{ form.phone_number|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_address" class="form-label">Address</label>
+                        {{ form.address|addclass:"form-control" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bio Data -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Bio Data</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_gender" class="form-label">Gender</label>
+                        {{ form.gender|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_date_of_birth" class="form-label">Date of Birth</label>
+                        {{ form.date_of_birth|addclass:"form-control" }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_nationality" class="form-label">Nationality</label>
+                        {{ form.nationality|addclass:"form-control" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Profile -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Personal Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.personal_profile|addclass:"form-control" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Work Experience</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-work-experience">
+                    Add Work Experience
+                </button>
+            </div>
+            <div class="card-body" id="work-experience-container">
+                {% for work in work_experience %}
+                <div class="work-experience-entry border-bottom pb-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" name="job_title[]" value="{{ work.job_title }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" class="form-control" name="company_name[]" value="{{ work.company_name }}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="work_location[]" value="{{ work.location }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="work_start_date[]" value="{{ work.start_date }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="work_end_date[]" value="{{ work.end_date|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Responsibilities</label>
+                        <textarea class="form-control" name="work_responsibilities[]" rows="3" required>{{ work.responsibilities|join:"\n" }}</textarea>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Education</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-education">
+                    Add Education
+                </button>
+            </div>
+            <div class="card-body" id="education-container">
+                {% for edu in education %}
+                <div class="education-entry border-bottom pb-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Degree/Course</label>
+                            <input type="text" class="form-control" name="degree[]" value="{{ edu.degree }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Institution</label>
+                            <input type="text" class="form-control" name="institution[]" value="{{ edu.institution }}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="education_location[]" value="{{ edu.location }}" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="education_start_date[]" value="{{ edu.start_date }}" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="education_end_date[]" value="{{ edu.end_date|default:'' }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Grade</label>
+                            <input type="text" class="form-control" name="grade[]" value="{{ edu.grade|default:'' }}">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Skills</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-skill">
+                    Add Skill
+                </button>
+            </div>
+            <div class="card-body" id="skills-container">
+                {% for skill in skills %}
+                <div class="skill-entry d-flex align-items-center gap-2 mb-2">
+                    <input type="text" class="form-control" name="skill_name[]" value="{{ skill.name }}" placeholder="Skill" required>
+                    <select class="form-select" name="skill_type[]" required>
+                        <option value="hard" {% if skill.type == 'hard' %}selected{% endif %}>Hard Skill</option>
+                        <option value="soft" {% if skill.type == 'soft' %}selected{% endif %}>Soft Skill</option>
+                    </select>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Certifications</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-certification">
+                    Add Certification
+                </button>
+            </div>
+            <div class="card-body" id="certifications-container">
+                {% for cert in certifications %}
+                <div class="certification-entry border-bottom pb-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Certificate Name</label>
+                            <input type="text" class="form-control" name="certificate_name[]" value="{{ cert.certificate_name }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Issuing Organization</label>
+                            <input type="text" class="form-control" name="issuing_organization[]" value="{{ cert.issuing_organization }}" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Date Earned</label>
+                            <input type="date" class="form-control" name="date_earned[]" value="{{ cert.date_earned }}" required>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Languages</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-language">
+                    Add Language
+                </button>
+            </div>
+            <div class="card-body" id="languages-container">
+                {% for lang in languages %}
+                <div class="language-entry d-flex align-items-center gap-2 mb-2">
+                    <input type="text" class="form-control" name="language[]" value="{{ lang.language }}" placeholder="Language" required>
+                    <select class="form-select" name="proficiency[]" required>
+                        <option value="basic" {% if lang.proficiency == 'basic' %}selected{% endif %}>Basic</option>
+                        <option value="intermediate" {% if lang.proficiency == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="fluent" {% if lang.proficiency == 'fluent' %}selected{% endif %}>Fluent</option>
+                        <option value="native" {% if lang.proficiency == 'native' %}selected{% endif %}>Native</option>
+                    </select>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Hobbies -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Hobbies & Interests</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-hobby">
+                    Add Hobby
+                </button>
+            </div>
+            <div class="card-body" id="hobbies-container">
+                {% for hobby in hobbies %}
+                <div class="hobby-entry d-flex align-items-center gap-2 mb-2">
+                    <input type="text" class="form-control" name="hobby[]" value="{{ hobby }}" placeholder="Hobby/Interest" required>
+                    <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'documents:cv_preview' cv.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Work Experience
+    document.getElementById('add-work-experience').addEventListener('click', function() {
+        const container = document.getElementById('work-experience-container');
+        const entry = document.createElement('div');
+        entry.className = 'work-experience-entry border-bottom pb-3 mb-3';
+        entry.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" class="form-control" name="job_title[]" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="form-control" name="company_name[]" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" name="work_location[]" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="work_start_date[]" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="work_end_date[]">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Responsibilities</label>
+                <textarea class="form-control" name="work_responsibilities[]" rows="3" required></textarea>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Education
+    document.getElementById('add-education').addEventListener('click', function() {
+        const container = document.getElementById('education-container');
+        const entry = document.createElement('div');
+        entry.className = 'education-entry border-bottom pb-3 mb-3';
+        entry.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Degree/Course</label>
+                    <input type="text" class="form-control" name="degree[]" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Institution</label>
+                    <input type="text" class="form-control" name="institution[]" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" name="education_location[]" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="education_start_date[]" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="education_end_date[]">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Grade</label>
+                    <input type="text" class="form-control" name="grade[]">
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Skill
+    document.getElementById('add-skill').addEventListener('click', function() {
+        const container = document.getElementById('skills-container');
+        const entry = document.createElement('div');
+        entry.className = 'skill-entry d-flex align-items-center gap-2 mb-2';
+        entry.innerHTML = `
+            <input type="text" class="form-control" name="skill_name[]" placeholder="Skill" required>
+            <select class="form-select" name="skill_type[]" required>
+                <option value="hard">Hard Skill</option>
+                <option value="soft">Soft Skill</option>
+            </select>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Certification
+    document.getElementById('add-certification').addEventListener('click', function() {
+        const container = document.getElementById('certifications-container');
+        const entry = document.createElement('div');
+        entry.className = 'certification-entry border-bottom pb-3 mb-3';
+        entry.innerHTML = `
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Certificate Name</label>
+                    <input type="text" class="form-control" name="certificate_name[]" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Issuing Organization</label>
+                    <input type="text" class="form-control" name="issuing_organization[]" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Date Earned</label>
+                    <input type="date" class="form-control" name="date_earned[]" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Language
+    document.getElementById('add-language').addEventListener('click', function() {
+        const container = document.getElementById('languages-container');
+        const entry = document.createElement('div');
+        entry.className = 'language-entry d-flex align-items-center gap-2 mb-2';
+        entry.innerHTML = `
+            <input type="text" class="form-control" name="language[]" placeholder="Language" required>
+            <select class="form-select" name="proficiency[]" required>
+                <option value="basic">Basic</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="fluent">Fluent</option>
+                <option value="native">Native</option>
+            </select>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Hobby
+    document.getElementById('add-hobby').addEventListener('click', function() {
+        const container = document.getElementById('hobbies-container');
+        const entry = document.createElement('div');
+        entry.className = 'hobby-entry d-flex align-items-center gap-2 mb-2';
+        entry.innerHTML = `
+            <input type="text" class="form-control" name="hobby[]" placeholder="Hobby/Interest" required>
+            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Remove entry functionality for all dynamic sections
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-entry')) {
+            e.target.closest('.work-experience-entry, .education-entry, .skill-entry, .certification-entry, .language-entry, .hobby-entry').remove();
+        }
+    });
+});
+</script>
+
+{% endblock %} 

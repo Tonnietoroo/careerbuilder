@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login - CareerBuilder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Are you sure you want to delete your account?</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit">Yes, Delete My Account</button>
+                        <a href="{% url 'accounts:profile' %}">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
