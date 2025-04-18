@@ -1,12 +1,30 @@
 from django import forms
-from .models import CV, CoverLetter, JobCategory, InterviewPrep
+from .models import CV, CoverLetter, CVTemplate
+from interviews.models import InterviewPrep
+
 
 class CVForm(forms.ModelForm):
+    title = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text="Give your CV a title for easy reference"
+    )
+    
     # Personal Information
-    full_name = forms.CharField(max_length=200)
-    email = forms.EmailField()
-    phone_number = forms.CharField(max_length=20)
-    address = forms.CharField(widget=forms.Textarea)
+    full_name = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    phone_number = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    address = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+    )
     
     # Bio Data
     GENDER_CHOICES = [
@@ -14,27 +32,59 @@ class CVForm(forms.ModelForm):
         ('F', 'Female'),
         ('O', 'Other')
     ]
-    gender = forms.ChoiceField(choices=GENDER_CHOICES)
-    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    nationality = forms.CharField(max_length=100)
+    gender = forms.ChoiceField(
+        choices=GENDER_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+    nationality = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     
     # Personal Profile
-    personal_profile = forms.CharField(widget=forms.Textarea)
+    personal_profile = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        help_text="Write a brief professional summary about yourself"
+    )
     
     # Responsibilities
-    title = forms.CharField(
-        max_length=200,
-        help_text="Give your CV a title for easy reference"
-    )
     responsibilities = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 4}),
         help_text="Enter your general responsibilities",
         required=False  # Make it optional if you prefer
     )
     
+    # Referee fields
+    referee_name = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    referee_job = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False,
+        label='Current Job Title'
+    )
+    referee_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    referee_phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    
     class Meta:
         model = CV
         fields = ['title']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class WorkExperienceForm(forms.Form):
     job_title = forms.CharField(max_length=100)

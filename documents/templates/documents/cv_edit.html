@@ -273,6 +273,49 @@
             </div>
         </div>
 
+        <!-- References -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>References</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-referee">
+                    <i class="fas fa-plus"></i> Add Referee
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="referees-container">
+                    {% if cv.content.referees %}
+                        {% for referee in cv.content.referees %}
+                            <div class="referee-entry border rounded p-3 mb-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" name="referee_name[]" 
+                                               value="{{ referee.name }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Current Job Title</label>
+                                        <input type="text" class="form-control" name="referee_job[]" 
+                                               value="{{ referee.job }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="referee_email[]" 
+                                               value="{{ referee.email }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" name="referee_phone[]" 
+                                               value="{{ referee.phone }}" required>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm mt-3 remove-entry">Remove</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary">Save Changes</button>
             <a href="{% url 'documents:cv_preview' cv.id %}" class="btn btn-secondary">Cancel</a>
@@ -429,6 +472,35 @@ document.addEventListener('DOMContentLoaded', function() {
         entry.innerHTML = `
             <input type="text" class="form-control" name="hobby[]" placeholder="Hobby/Interest" required>
             <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    // Add Referee
+    document.getElementById('add-referee').addEventListener('click', function() {
+        const container = document.getElementById('referees-container');
+        const entry = document.createElement('div');
+        entry.className = 'referee-entry border rounded p-3 mb-3';
+        entry.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" name="referee_name[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Current Job Title</label>
+                    <input type="text" class="form-control" name="referee_job[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="referee_email[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" name="referee_phone[]" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-3 remove-entry">Remove</button>
         `;
         container.appendChild(entry);
     });

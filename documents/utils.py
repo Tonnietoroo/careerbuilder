@@ -4,7 +4,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import Cm
 import io
 import openai
 from django.conf import settings
@@ -174,214 +176,172 @@ Best regards,
             "[Error: Could not generate custom content. Please try again.]"
         )
 
-def generate_pdf(cv):
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+def generate_pdf(cv, output):
+    """Generate a PDF version of the CV"""
+    doc = SimpleDocTemplate(output, pagesize=letter)
     styles = getSampleStyleSheet()
     elements = []
 
-    # Title
-    elements.append(Paragraph(cv.title, styles['Title']))
-    elements.append(Spacer(1, 12))
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        alignment=1  # Center alignment
+    )
 
-    # Personal Information
-    elements.append(Paragraph('Personal Information', styles['Heading1']))
-    personal_info = cv.content.get('personal_info', {})
-    info_data = [
-        ['Full Name:', personal_info.get('full_name', '')],
-        ['Email:', personal_info.get('email', '')],
-        ['Phone:', personal_info.get('phone_number', '')],
-        ['Address:', personal_info.get('address', '')]
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceBefore=20,
+        spaceAfter=12,
+        textColor=colors.HexColor('#2c3e50')
+    )
+
+    # Add name as title
+    elements.append(Paragraph(cv.content['personal_info']['full_name'], title_style))
+    
+    # Contact information
+    contact_info = [
+        [cv.content['personal_info']['email']],
+        [cv.content['personal_info']['phone_number']],
+        [cv.content['personal_info']['address']]
     ]
-    table = Table(info_data, colWidths=[100, 400])
-    table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+    contact_table = Table(contact_info, colWidths=[400])
+    contact_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#666666')),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
     ]))
-    elements.append(table)
-    elements.append(Spacer(1, 12))
+    elements.append(contact_table)
+    elements.append(Spacer(1, 20))
 
-    # Bio Data
-    elements.append(Paragraph('Bio Data', styles['Heading1']))
-    bio_data = cv.content.get('bio_data', {})
-    bio_table = Table([
-        ['Gender:', bio_data.get('gender', '')],
-        ['Date of Birth:', bio_data.get('date_of_birth', '')],
-        ['Nationality:', bio_data.get('nationality', '')]
-    ], colWidths=[100, 400])
-    bio_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-    elements.append(bio_table)
-    elements.append(Spacer(1, 12))
-
-    # Personal Profile
-    elements.append(Paragraph('Personal Profile', styles['Heading1']))
-    elements.append(Paragraph(cv.content.get('personal_profile', ''), styles['Normal']))
-    elements.append(Spacer(1, 12))
+    # Professional Profile
+    elements.append(Paragraph('Professional Profile', heading_style))
+    elements.append(Paragraph(cv.content['personal_profile'], styles['Normal']))
+    elements.append(Spacer(1, 20))
 
     # Work Experience
-    elements.append(Paragraph('Work Experience', styles['Heading1']))
-    for work in cv.content.get('work_experience', []):
-        elements.append(Paragraph(f"{work['job_title']} at {work['company_name']}", styles['Heading2']))
-        elements.append(Paragraph(f"{work['location']} | {work['start_date']} - {work.get('end_date', 'Present')}", styles['Italic']))
-        for resp in work.get('responsibilities', []):
+    elements.append(Paragraph('Work Experience', heading_style))
+    for exp in cv.content['work_experience']:
+        elements.append(Paragraph(
+            f"<b>{exp['job_title']}</b> at <b>{exp['company_name']}</b>",
+            styles['Normal']
+        ))
+        elements.append(Paragraph(
+            f"<i>{exp['start_date']} - {exp['end_date'] or 'Present'}</i>",
+            styles['Normal']
+        ))
+        for resp in exp['responsibilities']:
             elements.append(Paragraph(f"• {resp}", styles['Normal']))
         elements.append(Spacer(1, 12))
 
     # Education
-    elements.append(Paragraph('Education', styles['Heading1']))
-    for edu in cv.content.get('education', []):
-        elements.append(Paragraph(edu['degree'], styles['Heading2']))
-        elements.append(Paragraph(f"{edu['institution']} - {edu['location']}", styles['Normal']))
-        elements.append(Paragraph(f"{edu['start_date']} - {edu.get('end_date', 'Present')}", styles['Normal']))
-        if edu.get('grade'):
+    elements.append(Paragraph('Education', heading_style))
+    for edu in cv.content['education']:
+        elements.append(Paragraph(
+            f"<b>{edu['degree']}</b> - {edu['institution']}",
+            styles['Normal']
+        ))
+        elements.append(Paragraph(
+            f"<i>{edu['start_date']} - {edu['end_date'] or 'Present'}</i>",
+            styles['Normal']
+        ))
+        if edu['grade']:
             elements.append(Paragraph(f"Grade: {edu['grade']}", styles['Normal']))
         elements.append(Spacer(1, 12))
 
     # Skills
-    elements.append(Paragraph('Skills', styles['Heading1']))
-    hard_skills = [skill['name'] for skill in cv.content.get('skills', []) if skill['type'] == 'hard']
-    soft_skills = [skill['name'] for skill in cv.content.get('skills', []) if skill['type'] == 'soft']
-    if hard_skills:
-        elements.append(Paragraph('Hard Skills:', styles['Heading2']))
-        for skill in hard_skills:
-            elements.append(Paragraph(f"• {skill}", styles['Normal']))
-    if soft_skills:
-        elements.append(Paragraph('Soft Skills:', styles['Heading2']))
-        for skill in soft_skills:
-            elements.append(Paragraph(f"• {skill}", styles['Normal']))
-    elements.append(Spacer(1, 12))
+    if cv.content['skills']:
+        elements.append(Paragraph('Skills', heading_style))
+        skill_text = ' • '.join(skill['name'] for skill in cv.content['skills'])
+        elements.append(Paragraph(skill_text, styles['Normal']))
 
-    # Certifications
-    elements.append(Paragraph('Certifications', styles['Heading1']))
-    for cert in cv.content.get('certifications', []):
-        elements.append(Paragraph(cert['certificate_name'], styles['Heading2']))
-        elements.append(Paragraph(f"{cert['issuing_organization']} - {cert['date_earned']}", styles['Normal']))
-        elements.append(Spacer(1, 12))
-
-    # Languages
-    elements.append(Paragraph('Languages', styles['Heading1']))
-    for lang in cv.content.get('languages', []):
-        elements.append(Paragraph(f"{lang['language']}: {lang['proficiency'].title()}", styles['Normal']))
-
-    # Hobbies
-    elements.append(Paragraph('Hobbies & Interests', styles['Heading1']))
-    for hobby in cv.content.get('hobbies', []):
-        elements.append(Paragraph(f"• {hobby}", styles['Normal']))
-
+    # Build the PDF
     doc.build(elements)
-    buffer.seek(0)
-    return buffer
 
-def generate_docx(cv):
+def generate_docx(cv, output):
+    """Generate a Word document version of the CV"""
     doc = Document()
     
-    # Create italic style
-    italic_style = doc.styles.add_style('Italic Style', 1)  # 1 is character style
-    italic_style.font.italic = True
+    # Add custom styles
+    styles = doc.styles
     
-    # Title
-    doc.add_heading(cv.title, 0)
-
-    # Personal Information
-    doc.add_heading('Personal Information', level=1)
-    personal_info = cv.content.get('personal_info', {})
-    table = doc.add_table(rows=4, cols=2)
-    table.style = 'Table Grid'
-    cells = [
-        ('Full Name:', personal_info.get('full_name', '')),
-        ('Email:', personal_info.get('email', '')),
-        ('Phone:', personal_info.get('phone_number', '')),
-        ('Address:', personal_info.get('address', ''))
-    ]
-    for i, (key, value) in enumerate(cells):
-        table.cell(i, 0).text = key
-        table.cell(i, 1).text = value
-
-    # Bio Data
-    doc.add_heading('Bio Data', level=1)
-    bio_data = cv.content.get('bio_data', {})
-    table = doc.add_table(rows=3, cols=2)
-    table.style = 'Table Grid'
-    cells = [
-        ('Gender:', bio_data.get('gender', '')),
-        ('Date of Birth:', bio_data.get('date_of_birth', '')),
-        ('Nationality:', bio_data.get('nationality', ''))
-    ]
-    for i, (key, value) in enumerate(cells):
-        table.cell(i, 0).text = key
-        table.cell(i, 1).text = value
-
-    # Personal Profile
-    doc.add_heading('Personal Profile', level=1)
-    doc.add_paragraph(cv.content.get('personal_profile', ''))
-
+    # Heading style
+    heading_style = styles.add_style('CustomHeading', WD_STYLE_TYPE.PARAGRAPH)
+    heading_style.font.size = Pt(16)
+    heading_style.font.bold = True
+    heading_style.font.color.rgb = RGBColor(44, 62, 80)  # #2c3e50
+    heading_style.paragraph_format.space_before = Pt(20)
+    heading_style.paragraph_format.space_after = Pt(12)
+    
+    # Name and title
+    title = doc.add_heading(cv.content['personal_info']['full_name'], 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Contact information
+    contact_info = doc.add_paragraph()
+    contact_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact_info.add_run(cv.content['personal_info']['email']).italic = True
+    contact_info.add_run(' | ')
+    contact_info.add_run(cv.content['personal_info']['phone_number']).italic = True
+    contact_info.add_run(' | ')
+    contact_info.add_run(cv.content['personal_info']['address']).italic = True
+    
+    # Professional Profile
+    doc.add_heading('Professional Profile', level=1).style = heading_style
+    doc.add_paragraph(cv.content['personal_profile'])
+    
     # Work Experience
-    doc.add_heading('Work Experience', level=1)
-    for work in cv.content.get('work_experience', []):
-        doc.add_heading(f"{work['job_title']} at {work['company_name']}", level=2)
-        # Use italic style for date range
+    doc.add_heading('Work Experience', level=1).style = heading_style
+    for exp in cv.content['work_experience']:
         p = doc.add_paragraph()
-        p.add_run(f"{work['location']} | {work['start_date']} - {work.get('end_date', 'Present')}").italic = True
-        for resp in work.get('responsibilities', []):
-            doc.add_paragraph(f"• {resp}", style='List Bullet')
-
+        p.add_run(f"{exp['job_title']} at {exp['company_name']}").bold = True
+        p.add_run(f"\n{exp['start_date']} - {exp['end_date'] or 'Present'}").italic = True
+        
+        if exp['responsibilities']:
+            for resp in exp['responsibilities']:
+                bullet_p = doc.add_paragraph(style='List Bullet')
+                bullet_p.add_run(resp)
+    
     # Education
-    doc.add_heading('Education', level=1)
-    for edu in cv.content.get('education', []):
-        doc.add_heading(edu['degree'], level=2)
-        doc.add_paragraph(f"{edu['institution']} - {edu['location']}")
-        # Use italic style for date range
+    doc.add_heading('Education', level=1).style = heading_style
+    for edu in cv.content['education']:
         p = doc.add_paragraph()
-        p.add_run(f"{edu['start_date']} - {edu.get('end_date', 'Present')}").italic = True
-        if edu.get('grade'):
-            doc.add_paragraph(f"Grade: {edu['grade']}")
-
+        p.add_run(f"{edu['degree']} - {edu['institution']}").bold = True
+        p.add_run(f"\n{edu['start_date']} - {edu['end_date'] or 'Present'}").italic = True
+        if edu['grade']:
+            p.add_run(f"\nGrade: {edu['grade']}")
+    
     # Skills
-    doc.add_heading('Skills', level=1)
-    hard_skills = [skill['name'] for skill in cv.content.get('skills', []) if skill['type'] == 'hard']
-    soft_skills = [skill['name'] for skill in cv.content.get('skills', []) if skill['type'] == 'soft']
-    if hard_skills:
-        doc.add_heading('Hard Skills:', level=2)
-        for skill in hard_skills:
-            doc.add_paragraph(f"• {skill}", style='List Bullet')
-    if soft_skills:
-        doc.add_heading('Soft Skills:', level=2)
-        for skill in soft_skills:
-            doc.add_paragraph(f"• {skill}", style='List Bullet')
-
-    # Certifications
-    doc.add_heading('Certifications', level=1)
-    for cert in cv.content.get('certifications', []):
-        doc.add_heading(cert['certificate_name'], level=2)
-        doc.add_paragraph(f"{cert['issuing_organization']} - {cert['date_earned']}")
-
-    # Languages
-    doc.add_heading('Languages', level=1)
-    for lang in cv.content.get('languages', []):
-        doc.add_paragraph(f"{lang['language']}: {lang['proficiency'].title()}")
-
-    # Hobbies
-    doc.add_heading('Hobbies & Interests', level=1)
-    for hobby in cv.content.get('hobbies', []):
-        doc.add_paragraph(f"• {hobby}", style='List Bullet')
-
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    return buffer
+    if cv.content['skills']:
+        doc.add_heading('Skills', level=1).style = heading_style
+        skills_para = doc.add_paragraph()
+        for i, skill in enumerate(cv.content['skills']):
+            skills_para.add_run(skill['name'])
+            if i < len(cv.content['skills']) - 1:
+                skills_para.add_run(' • ')
+    
+    # Set margins for better layout
+    sections = doc.sections
+    for section in sections:
+        section.top_margin = Cm(2)
+        section.bottom_margin = Cm(2)
+        section.left_margin = Cm(2.5)
+        section.right_margin = Cm(2.5)
+    
+    # Save the document
+    doc.save(output)
 
 def get_interview_questions(job_title, company_name):
     """Generate interview questions and tips for a specific job"""
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=settings.OPENROUTER_API_KEY,
+        default_headers=settings.OPENROUTER_HEADERS
     )
     
     prompt = f"""
@@ -407,10 +367,6 @@ def get_interview_questions(job_title, company_name):
     
     try:
         completion = client.chat.completions.create(
-            extra_headers={
-                "HTTP-Referer": settings.SITE_URL,
-                "X-Title": "CareerBuilder",
-            },
             model="deepseek/deepseek-r1:free",
             messages=[
                 {
@@ -466,9 +422,6 @@ def get_interview_questions(job_title, company_name):
             )
             questions.append(question_obj)
         
-        if not questions:  # If no questions were parsed successfully
-            raise ValueError("No questions were generated")
-            
         return questions
         
     except Exception as e:
@@ -478,17 +431,12 @@ def get_interview_questions(job_title, company_name):
             InterviewQuestion.objects.create(
                 question_type='general',
                 question=f"Tell me about your experience relevant to this {job_title} position.",
-                answer=f"Focus on your most relevant experience for the {job_title} role. Highlight specific achievements and how they demonstrate your qualifications. Mention any similar roles or projects you've worked on, and explain how that experience would benefit {company_name}."
+                answer=f"Focus on your most relevant experience for the {job_title} role. Highlight specific achievements and how they demonstrate your qualifications."
             ),
             InterviewQuestion.objects.create(
                 question_type='general',
-                question=f"Why are you interested in this position at {company_name}?",
-                answer=f"Research {company_name}'s mission, values, and recent projects. Explain how your career goals align with the company's objectives. Discuss specific aspects of the role that interest you and how you can contribute to the company's success."
-            ),
-            InterviewQuestion.objects.create(
-                question_type='general',
-                question="What is your greatest professional achievement?",
-                answer="Choose a significant achievement that demonstrates skills relevant to the role. Use the STAR method (Situation, Task, Action, Result) to structure your response. Quantify the results when possible and explain how this experience has prepared you for this position."
+                question=f"Why are you interested in working at {company_name}?",
+                answer=f"Research {company_name}'s mission and values. Explain how your career goals align with the company's objectives."
             )
         ]
 
@@ -542,4 +490,69 @@ def generate_cover_letter_docx(cover_letter):
     buffer = BytesIO()
     doc.save(buffer)
     buffer.seek(0)
-    return buffer 
+    return buffer
+
+def generate_cover_letter_body(cv, job_title, company_name):
+    """
+    Generate the body content for a cover letter using CV data and job details.
+    """
+    try:
+        # Get relevant information from CV
+        work_experience = cv.content.get('work_experience', [])
+        skills = cv.content.get('skills', [])
+        education = cv.content.get('education', [])
+        
+        # Create an introduction paragraph
+        intro = (f"I am writing to express my keen interest in the {job_title} position at {company_name}. "
+                "As a motivated professional with a strong background in technology and a passion for innovation, "
+                "I am confident in my ability to contribute effectively to your team.")
+
+        # Create a skills and experience paragraph
+        skill_names = [skill['name'] for skill in skills[:3]]  # Get top 3 skills
+        if skill_names:
+            skills_text = ", ".join(skill_names[:-1]) + f" and {skill_names[-1]}" if len(skill_names) > 1 else skill_names[0]
+            experience_para = f"\n\nMy expertise in {skills_text} aligns perfectly with the requirements of this role. "
+        else:
+            experience_para = "\n\nThroughout my career, I have developed a diverse set of technical skills. "
+
+        # Add work experience
+        if work_experience:
+            latest_job = work_experience[0]  # Get most recent experience
+            experience_para += (f"In my current role as {latest_job.get('job_title')} at {latest_job.get('company_name')}, "
+                              "I have successfully:")
+            
+            # Add bullet points from responsibilities
+            responsibilities = latest_job.get('responsibilities', [])
+            if responsibilities:
+                experience_para += "\n"
+                for resp in responsibilities[:3]:  # Include top 3 responsibilities
+                    experience_para += f"\n• {resp}"
+
+        # Add education if available
+        if education:
+            latest_edu = education[0]  # Get most recent education
+            edu_para = f"\n\nI hold a {latest_edu.get('degree')} from {latest_edu.get('institution')}"
+            if latest_edu.get('grade'):
+                edu_para += f" with a grade of {latest_edu.get('grade')}"
+            edu_para += ". "
+            experience_para += edu_para
+
+        # Create a closing paragraph
+        closing = ("\n\nI am particularly drawn to your company's reputation for innovation and excellence in the industry. "
+                  "I am excited about the possibility of bringing my expertise and enthusiasm to your team. "
+                  "I would welcome the opportunity to discuss how my skills and experience align with your needs in more detail.")
+
+        # Combine all paragraphs
+        body = intro + experience_para + closing
+
+        return body
+
+    except Exception as e:
+        # Fallback content in case of any error
+        return (f"I am writing to express my strong interest in the {job_title} position at {company_name}.\n\n"
+                "Throughout my career, I have developed a strong skill set that aligns well with this role. "
+                "I have consistently demonstrated my ability to deliver results and work effectively in team environments. "
+                "My technical expertise and problem-solving abilities have enabled me to make significant contributions "
+                "in my previous roles.\n\n"
+                "I am excited about the opportunity to bring my skills and experience to your organization. "
+                "I would welcome the chance to discuss how I can contribute to your team in more detail.") 

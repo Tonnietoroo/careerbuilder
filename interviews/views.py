@@ -1,8 +1,10 @@
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Industry, InterviewQuestion, InterviewPrep
 from .forms import InterviewPrepForm, QuestionForm, IndustryForm
+from .utils import get_interview_questions
 
 @login_required
 def interview_list(request):
@@ -17,16 +19,33 @@ def interview_create(request):
             interview = form.save(commit=False)
             interview.user = request.user
             interview.save()
+            
+            # Generate questions based on industry and job title
+            questions = get_interview_questions(
+                job_category=form.cleaned_data['industry'],
+                job_title=form.cleaned_data['job_title']
+            )
+            
+            # Add all generated questions to the interview prep
+            if questions:
+                interview.questions.add(*questions)
+            
             messages.success(request, 'Interview preparation created successfully!')
             return redirect('interviews:interview_detail', interview_id=interview.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = InterviewPrepForm()
-    return render(request, 'interviews/interview_form.html', {'form': form})
+    
+    return render(request, 'interviews/interview_form.html', {
+        'form': form,
+        'industries': Industry.objects.all()
+    })
 
 @login_required
 def interview_detail(request, interview_id):
     interview = get_object_or_404(InterviewPrep, id=interview_id, user=request.user)
-    questions = InterviewQuestion.objects.filter(industry=interview.industry)
+    questions = interview.questions.all()  # Get all questions
     return render(request, 'interviews/interview_detail.html', {
         'interview': interview,
         'questions': questions
@@ -38,7 +57,7 @@ def interview_edit(request, interview_id):
     if request.method == 'POST':
         form = InterviewPrepForm(request.POST, instance=interview)
         if form.is_valid():
-            form.save()
+            form.save()  # Works correctly with DateTimeField now
             messages.success(request, 'Interview preparation updated successfully!')
             return redirect('interviews:interview_detail', interview_id=interview.id)
     else:
@@ -54,7 +73,6 @@ def interview_delete(request, interview_id):
         return redirect('interviews:interview_list')
     return render(request, 'interviews/interview_confirm_delete.html', {'interview': interview})
 
-# Question Management Views
 @login_required
 def question_list(request):
     questions = InterviewQuestion.objects.all()
@@ -94,7 +112,6 @@ def question_delete(request, question_id):
         return redirect('interviews:question_list')
     return render(request, 'interviews/question_confirm_delete.html', {'question': question})
 
-# Industry Management Views
 @login_required
 def industry_list(request):
     industries = Industry.objects.all()
@@ -132,4 +149,4 @@ def industry_delete(request, industry_id):
         industry.delete()
         messages.success(request, 'Industry deleted successfully!')
         return redirect('interviews:industry_list')
-    return render(request, 'interviews/industry_confirm_delete.html', {'industry': industry}) 
+    return render(request, 'interviews/industry_confirm_delete.html', {'industry': industry})

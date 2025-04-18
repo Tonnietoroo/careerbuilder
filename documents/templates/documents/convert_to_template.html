@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2>Convert to CV Template</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Original Document: {{ document.title }}</h5>
+            <p class="text-muted">Uploaded on: {{ document.uploaded_at|date:"F d, Y" }}</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Select Template</h5>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row g-4">
+                    {% for template in templates %}
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            {% if template.preview_image %}
+                            <img src="{{ template.preview_image.url }}" class="card-img-top" alt="{{ template.name }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ template.name }}</h5>
+                                <p class="card-text">{{ template.description }}</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="template" 
+                                           value="{{ template.id }}" id="template_{{ template.id }}" required>
+                                    <label class="form-check-label" for="template_{{ template.id }}">
+                                        Select this template
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Convert Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

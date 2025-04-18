@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Select CV Template{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Choose a Template</h2>
+    
+    <div class="row">
+        {% for template in templates %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 template-card">
+                {% if template.preview_image %}
+                    <img src="{{ template.preview_image.url }}" 
+                         class="card-img-top" 
+                         alt="{{ template.name }} template">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ template.name }}</h5>
+                    <p class="card-text">{{ template.description }}</p>
+                    <form method="get" action="{% url 'documents:cv_create' %}">
+                        <input type="hidden" name="template" value="{{ template.id }}">
+                        <button type="submit" class="btn btn-primary w-100">Use this template</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.template-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.template-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+</style>
+{% endblock %} 

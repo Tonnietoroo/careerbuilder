@@ -8,6 +8,7 @@
     <h2 class="mb-4">Create Your CV</h2>
     <form method="post" id="cv-form" class="needs-validation" novalidate enctype="multipart/form-data" action="{% url 'documents:cv_create' %}">
         {% csrf_token %}
+        <input type="hidden" name="template" value="{{ template_id }}">
         
         <!-- CV Title -->
         <div class="card mb-4">
@@ -163,6 +164,21 @@
             </div>
             <div class="card-body" id="hobbies-container">
                 <!-- Hobbies will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- References -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>References</h4>
+                <button type="button" class="btn btn-primary btn-sm" id="add-referee">
+                    <i class="fas fa-plus"></i> Add Referee
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="referees-container">
+                    <!-- Referees will be added here dynamically -->
+                </div>
             </div>
         </div>
 
@@ -344,6 +360,35 @@ document.addEventListener('DOMContentLoaded', function() {
         hobbiesContainer.appendChild(hobby);
     });
 
+    // Add Referee
+    document.getElementById('add-referee').addEventListener('click', function() {
+        const container = document.getElementById('referees-container');
+        const entry = document.createElement('div');
+        entry.className = 'referee-entry border rounded p-3 mb-3';
+        entry.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" name="referee_name[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Current Job Title</label>
+                    <input type="text" class="form-control" name="referee_job[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="referee_email[]" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" name="referee_phone[]" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-3 remove-entry">Remove</button>
+        `;
+        container.appendChild(entry);
+    });
+
     // Form validation and submission
     const form = document.getElementById('cv-form');
     form.addEventListener('submit', function(event) {
@@ -362,10 +407,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Remove entry functionality for all dynamic sections
+    // Update the remove entry functionality to include referee entries
     document.addEventListener('click', function(e) {
         if (e.target && e.target.classList.contains('remove-entry')) {
-            e.target.closest('.work-experience-entry, .education-entry, .skill-entry, .certification-entry, .language-entry, .hobby-entry').remove();
+            e.target.closest('.work-experience-entry, .education-entry, .skill-entry, .certification-entry, .language-entry, .hobby-entry, .referee-entry').remove();
         }
     });
 });

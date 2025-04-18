@@ -1,0 +1,78 @@
+<div class="container minimal-cv">
+    <header class="text-center py-4 border-bottom">
+        <h1 class="display-6 fw-bold">{{ personal_info.full_name }}</h1>
+        <div class="contact-info text-muted">
+            <span><i class="fas fa-envelope"></i> {{ personal_info.email }}</span> |
+            <span><i class="fas fa-phone"></i> {{ personal_info.phone_number }}</span> |
+            <span><i class="fas fa-map-marker-alt"></i> {{ personal_info.address }}</span>
+        </div>
+    </header>
+
+    <section class="profile-section py-4">
+        <h2 class="section-title text-uppercase text-primary border-bottom pb-2">Professional Profile</h2>
+        <p class="lead">{{ personal_profile }}</p>
+    </section>
+
+    <section class="experience-section py-4">
+        <h2 class="section-title text-uppercase text-primary border-bottom pb-2">Experience</h2>
+        {% for exp in work_experience %}
+            <div class="experience-item mb-3 p-3 border rounded shadow-sm">
+                <h3 class="h5 fw-bold">{{ exp.job_title }}</h3>
+                <h4 class="h6 text-muted">{{ exp.company_name }}</h4>
+                <p class="text-muted"><i class="fas fa-calendar"></i> {{ exp.start_date }} - {{ exp.end_date|default:"Present" }}</p>
+                <ul class="list-unstyled">
+                    {% for resp in exp.responsibilities %}
+                        <li><i class="fas fa-check-circle text-success me-2"></i> {{ resp }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </section>
+
+    <section class="education-section py-4">
+        <h2 class="section-title text-uppercase text-primary border-bottom pb-2">Education</h2>
+        {% for edu in education %}
+            <div class="education-item mb-3 p-3 border rounded shadow-sm">
+                <h3 class="h5 fw-bold">{{ edu.degree }}</h3>
+                <h4 class="h6 text-muted">{{ edu.institution }}</h4>
+                <p class="text-muted"><i class="fas fa-calendar"></i> {{ edu.start_date }} - {{ edu.end_date|default:"Present" }}</p>
+                {% if edu.grade %}
+                    <p class="fw-bold"><i class="fas fa-star text-warning"></i> Grade: {{ edu.grade }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </section>
+
+    <section class="skills-section py-4">
+        <h2 class="section-title text-uppercase text-primary border-bottom pb-2">Skills</h2>
+        <div class="d-flex flex-wrap">
+            {% for skill in skills %}
+                <span class="badge bg-secondary text-white m-1 p-2">{{ skill.name }}</span>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if cv.content.referees %}
+        <section class="references-section py-4">
+            <h2 class="section-title text-uppercase text-primary border-bottom pb-2">References</h2>
+            <div class="row g-4 mt-2">
+                {% for referee in cv.content.referees %}
+                    <div class="col-md-6">
+                        <div class="reference-item mb-3 p-3 border rounded shadow-sm">
+                            <h3 class="h5 fw-bold mb-2">{{ referee.name }}</h3>
+                            <p class="text-muted mb-2">{{ referee.job }}</p>
+                            <p class="mb-1">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                {{ referee.email }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                {{ referee.phone }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</div>

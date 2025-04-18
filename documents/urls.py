@@ -11,6 +11,7 @@ urlpatterns = [
     path('cv/<int:cv_id>/edit/', views.cv_edit, name='cv_edit'),
     path('cv/<int:cv_id>/delete/', views.cv_delete, name='cv_delete'),
     path('cv/<int:cv_id>/download/', views.cv_download, name='cv_download'),
+    path('cv/template-select/', views.cv_template_select, name='cv_template_select'),
     
     # Cover Letter URLs
     path('cover-letter/', views.cover_letter_list, name='cover_letter_list'),
@@ -27,10 +28,13 @@ urlpatterns = [
     path('interview/<int:prep_id>/edit/', views.interview_prep_edit, name='interview_prep_edit'),
     path('interview/<int:prep_id>/delete/', views.interview_prep_delete, name='interview_prep_delete'),
     
-    # Document Management URLs
+    # Document management URLs
     path('manager/', views.document_manager, name='document_manager'),
-    path('manager/folder/create/', views.folder_create, name='folder_create'),
     path('manager/upload/', views.document_upload, name='document_upload'),
-    path('manager/move/<int:document_id>/', views.document_move, name='document_move'),
-    path('manager/delete/<int:document_id>/', views.document_delete, name='document_delete'),
+    path('folder/<int:folder_id>/', views.folder_view, name='folder_view'),
+    path('folder/create/', views.folder_create, name='folder_create'),
+    path('<int:document_id>/move/', views.document_move, name='document_move'),
+    path('<int:document_id>/delete/', views.document_delete, name='document_delete'),
+    path('<int:document_id>/convert/', views.convert_to_template, name='convert_to_template'),
+    
 ] 

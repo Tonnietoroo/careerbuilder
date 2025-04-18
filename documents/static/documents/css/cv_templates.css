@@ -1,0 +1,45 @@
+/* Professional Template */
+.cv-container.professional {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: 'Arial', sans-serif;
+}
+
+.professional header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.professional .main-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+}
+
+/* Creative Template */
+.cv-container.creative {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f8f9fa;
+}
+
+.creative .sidebar {
+    background: #2c3e50;
+    color: white;
+    padding: 40px;
+}
+
+/* Minimal Template */
+.cv-container.minimal {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: 'Playfair Display', serif;
+}
+
+.minimal section {
+    margin-bottom: 30px;
+} 

@@ -1,0 +1,101 @@
+<div class="professional-cv container my-5">
+    <!-- Header -->
+    <header class="text-center p-4 bg-primary text-white rounded">
+        <h1 class="fw-bold display-5">{{ personal_info.full_name }}</h1>
+        <div class="contact-info d-flex flex-wrap justify-content-center gap-3 mt-2">
+            <span><i class="fas fa-envelope me-2"></i> {{ personal_info.email }}</span>
+            <span><i class="fas fa-phone me-2"></i> {{ personal_info.phone_number }}</span>
+            <span><i class="fas fa-map-marker-alt me-2"></i> {{ personal_info.address }}</span>
+        </div>
+    </header>
+
+    <div class="row g-4 mt-4">
+        <!-- Left Column (Profile, Skills, Languages) -->
+        <div class="col-lg-4">
+            <section class="p-4 bg-white rounded shadow-sm">
+                <h2 class="text-secondary fw-bold">Professional Profile</h2>
+                <p class="fs-5">{{ personal_profile }}</p>
+            </section>
+
+            <section class="p-4 bg-white rounded shadow-sm mt-4">
+                <h2 class="text-secondary fw-bold">Skills</h2>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in skills %}
+                        <span class="badge bg-primary p-2">{{ skill.name }}</span>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="p-4 bg-white rounded shadow-sm mt-4">
+                <h2 class="text-secondary fw-bold">Languages</h2>
+                <ul class="list-unstyled">
+                    {% for lang in languages %}
+                        <li class="mb-2">
+                            <span class="fw-bold">{{ lang.language }}</span>
+                            <div class="progress mt-1">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                    style="width: {% if lang.proficiency == 'native' %}100%{% elif lang.proficiency == 'fluent' %}85%{% elif lang.proficiency == 'intermediate' %}60%{% else %}40%{% endif %};">
+                                    {{ lang.proficiency|title }}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        <!-- Right Column (Experience & Education) -->
+        <div class="col-lg-8">
+            <section class="p-4 bg-white rounded shadow-sm">
+                <h2 class="text-secondary fw-bold">Work Experience</h2>
+                {% for exp in work_experience %}
+                    <div class="mb-4">
+                        <h3 class="fw-bold">{{ exp.job_title }}</h3>
+                        <h4 class="text-muted">{{ exp.company_name }}</h4>
+                        <p class="text-muted"><i class="fas fa-calendar-alt"></i> {{ exp.start_date }} - {{ exp.end_date|default:"Present" }}</p>
+                        <ul class="list-unstyled">
+                            {% for resp in exp.responsibilities %}
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i> {{ resp }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </section>
+
+            <section class="p-4 bg-white rounded shadow-sm mt-4">
+                <h2 class="text-secondary fw-bold">Education</h2>
+                {% for edu in education %}
+                    <div class="mb-4">
+                        <h3 class="fw-bold">{{ edu.degree }}</h3>
+                        <h4 class="text-muted">{{ edu.institution }}</h4>
+                        <p class="text-muted"><i class="fas fa-calendar-alt"></i> {{ edu.start_date }} - {{ edu.end_date|default:"Present" }}</p>
+                        {% if edu.grade %}
+                            <p class="mb-0"><i class="fas fa-star text-warning me-2"></i> Grade: {{ edu.grade }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </section>
+
+            <!-- Add this section after the education section -->
+            {% if cv.content.referees %}
+                <section class="p-4 bg-white rounded shadow-sm mt-4">
+                    <h2 class="text-secondary fw-bold">References</h2>
+                    <div class="row g-4">
+                        {% for referee in cv.content.referees %}
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded">
+                                    <h4 class="fw-bold mb-2">{{ referee.name }}</h4>
+                                    <p class="text-muted mb-1">{{ referee.job }}</p>
+                                    <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ referee.email }}</p>
+                                    <p class="mb-0"><i class="fas fa-phone me-2"></i>{{ referee.phone }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+    </div>
+</div>

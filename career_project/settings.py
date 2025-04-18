@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-@&^%+hcnv(6)x89290d+d6%l3jhy)g+j7_nc=)-8rbpr!bhvwh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.100.5']
 
 
 # Application definition
@@ -112,11 +112,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = "Africa/Nairobi"
 
 USE_I18N = True
 
 USE_TZ = True
+TIME_ZONE = 'Africa/Nairobi'  # Your local timezone
 
 
 # Static files (CSS, JavaScript, Images)
@@ -138,9 +138,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Add to your settings.py
 # Add to your settings.py
-OPENAI_API_KEY = 'your-api-key-here'   # Replace with your actual OpenAI API key
+# OPENAI_API_KEY = 'your-api-key-here'   # Replace with your actual OpenAI API key
 
 # OpenRouter Settings
 OPENROUTER_API_KEY = "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"
-SITE_URL = "http://127.0.0.1:8000/"  # Update with your actual site URL
+OPENROUTER_HEADERS = {
+    "HTTP-Referer": "http://127.0.0.1:8000/",  # Your site URL
+    "X-Title": "CareerBuilder",  # Your site name
+}
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        '__name__': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
+}
