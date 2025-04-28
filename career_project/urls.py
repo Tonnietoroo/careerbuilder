@@ -26,4 +26,8 @@ urlpatterns = [
     path('documents/', include('documents.urls')),
     path('interviews/', include('interviews.urls')),
     path('profiles/', include('profiles.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

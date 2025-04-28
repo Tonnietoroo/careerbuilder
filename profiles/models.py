@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from core.models import TimeStampedModel
 
 class Profile(TimeStampedModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles_profile')
     phone_number = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     bio = models.TextField(blank=True)

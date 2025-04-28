@@ -1,10 +1,20 @@
-<div class="container minimal-cv">
+{% if download_mode %}
+    {% autoescape off %}
+    {{ embedded_css }}
+    {% endautoescape %}
+{% endif %}
+
+<div class="cv-container minimal">
     <header class="text-center py-4 border-bottom">
         <h1 class="display-6 fw-bold">{{ personal_info.full_name }}</h1>
         <div class="contact-info text-muted">
             <span><i class="fas fa-envelope"></i> {{ personal_info.email }}</span> |
             <span><i class="fas fa-phone"></i> {{ personal_info.phone_number }}</span> |
             <span><i class="fas fa-map-marker-alt"></i> {{ personal_info.address }}</span>
+        </div>
+        <div class="bio-info text-muted mt-2">
+            <span><i class="fas fa-birthday-cake"></i> {{ personal_info.date_of_birth }}</span> |
+            <span><i class="fas fa-globe"></i> {{ personal_info.nationality }}</span>
         </div>
     </header>
 

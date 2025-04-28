@@ -1,113 +1,191 @@
 {% extends 'core/base.html' %}
-{% load static %}
+{% load form_tags %}
 
-{% block title %}Edit Profile{% endblock %}
+{% block title %}Edit Profile - CareerBuilder{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
                     <h2 class="card-title mb-4">Edit Profile</h2>
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
                         <!-- Personal Information -->
-                        <h5 class="mb-3">Personal Information</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Profile Picture</label>
-                                {{ form.profile_picture }}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">Personal Information</h4>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone Number</label>
-                                {{ form.phone_number }}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Address</label>
-                                {{ form.address }}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Bio</label>
-                                {{ form.bio }}
-                            </div>
-                        </div>
-
-                        <!-- Professional Information -->
-                        <h5 class="mb-3">Professional Information</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Job Title</label>
-                                {{ form.job_title }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Company</label>
-                                {{ form.company }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Industry</label>
-                                {{ form.industry }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Years of Experience</label>
-                                {{ form.years_of_experience }}
-                            </div>
-                        </div>
-
-                        <!-- Social Links -->
-                        <h5 class="mb-3">Social Links</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">LinkedIn</label>
-                                {{ form.linkedin }}
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">GitHub</label>
-                                {{ form.github }}
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Portfolio</label>
-                                {{ form.portfolio }}
-                            </div>
-                        </div>
-
-                        <!-- Career Preferences -->
-                        <h5 class="mb-3">Career Preferences</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Preferred Job Type</label>
-                                {{ form.preferred_job_type }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Preferred Location</label>
-                                {{ form.preferred_location }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Expected Salary</label>
-                                {{ form.expected_salary }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check mt-4">
-                                    {{ form.remote_work }}
-                                    <label class="form-check-label">Open to Remote Work</label>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                        {{ form.phone_number }}
+                                        {% if form.phone_number.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.phone_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                                        {{ form.profile_picture }}
+                                        {% if form.profile_picture.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.profile_picture.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.bio.errors }}</div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Skills -->
-                        <div class="mb-3">
-                            <label class="form-label">Skills</label>
-                            <div class="skills-container mb-2">
-                                {% for skill in profile.skills %}
-                                    <span class="skill-tag me-2 mb-2">
-                                        {{ skill }}
-                                        <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
-                                    </span>
-                                {% endfor %}
+                        <!-- Professional Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">Professional Information</h4>
                             </div>
-                            <input type="text" id="skill-input" class="form-control" placeholder="Type a skill and press Enter">
-                            <input type="hidden" name="skills" id="skills" value="{{ profile.skills|json }}">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.job_title.id_for_label }}" class="form-label">Job Title</label>
+                                        {{ form.job_title }}
+                                        {% if form.job_title.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.job_title.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.company.id_for_label }}" class="form-label">Company</label>
+                                        {{ form.company }}
+                                        {% if form.company.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.company.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.industry.id_for_label }}" class="form-label">Industry</label>
+                                        {{ form.industry }}
+                                        {% if form.industry.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.industry.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.years_of_experience.id_for_label }}" class="form-label">Years of Experience</label>
+                                        {{ form.years_of_experience }}
+                                        {% if form.years_of_experience.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.years_of_experience.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">Social Links</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.linkedin.id_for_label }}" class="form-label">LinkedIn Profile</label>
+                                    {{ form.linkedin }}
+                                    {% if form.linkedin.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.linkedin.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.github.id_for_label }}" class="form-label">GitHub Profile</label>
+                                    {{ form.github }}
+                                    {% if form.github.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.github.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.portfolio.id_for_label }}" class="form-label">Portfolio Website</label>
+                                    {{ form.portfolio }}
+                                    {% if form.portfolio.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.portfolio.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Career Preferences -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">Career Preferences</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.preferred_job_type.id_for_label }}" class="form-label">Preferred Job Type</label>
+                                        {{ form.preferred_job_type }}
+                                        {% if form.preferred_job_type.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.preferred_job_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.preferred_location.id_for_label }}" class="form-label">Preferred Location</label>
+                                        {{ form.preferred_location }}
+                                        {% if form.preferred_location.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.preferred_location.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.expected_salary.id_for_label }}" class="form-label">Expected Salary</label>
+                                        {{ form.expected_salary }}
+                                        {% if form.expected_salary.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.expected_salary.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.availability_status.id_for_label }}" class="form-label">Availability Status</label>
+                                        {{ form.availability_status }}
+                                        {% if form.availability_status.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.availability_status.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ form.remote_work }}
+                                        <label class="form-check-label" for="{{ form.remote_work.id_for_label }}">
+                                            Open to Remote Work
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">Privacy Settings</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.resume_privacy.id_for_label }}" class="form-label">Resume Privacy</label>
+                                    {{ form.resume_privacy }}
+                                    {% if form.resume_privacy.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.resume_privacy.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2">
@@ -123,11 +201,17 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="{% static 'profiles/js/profile.js' %}"></script>
-{% endblock %}
-
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="{% static 'profiles/css/style.css' %}">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
 {% endblock %} 

@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, UserProfileForm
+from .forms import UserRegistrationForm, ProfileForm
 from django.contrib import messages
-from .models import UserProfile
+from profiles.models import Profile
 
 def register(request):
     if request.user.is_authenticated:
@@ -13,6 +13,8 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Create a profile for the new user
+            Profile.objects.create(user=user)
             login(request, user)
             messages.success(request, 'Registration successful!')
             return redirect('core:home')
@@ -24,20 +26,23 @@ def register(request):
 @login_required
 def profile(request):
     try:
-        profile = request.user.account_profile  # Correct attribute name
-    except UserProfile.DoesNotExist:
-        profile = UserProfile.objects.create(user=request.user)
+        profile = request.user.profiles_profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
 
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully!')
             return redirect('accounts:profile')
     else:
-        form = UserProfileForm(instance=profile)
+        form = ProfileForm(instance=profile)
     
-    return render(request, 'accounts/profile.html', {'form': form}) 
+    return render(request, 'accounts/profile.html', {
+        'form': form,
+        'profile': profile
+    })
 
 @login_required
 def delete_account(request):

@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +30,7 @@ SECRET_KEY = 'django-insecure-@&^%+hcnv(6)x89290d+d6%l3jhy)g+j7_nc=)-8rbpr!bhvwh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.100.5']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -87,6 +91,20 @@ DATABASES = {
     }
 }
 
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+
+# Default from email
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# For development/testing, uncomment the following line to see emails in console instead
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -128,7 +146,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files configuration
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'documents', 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
  
 # Default primary key field type
@@ -165,4 +183,12 @@ LOGGING = {
             'level': 'WARNING',
         },
     },
+}
+
+WKHTMLTOPDF_PATH = r'C:\wkhtmltox\bin\wkhtmltopdf.exe'
+
+# PDF Generation Settings
+WKHTMLTOPDF_CMD_OPTIONS = {
+    'quiet': True,
+    'enable-local-file-access': True,
 }

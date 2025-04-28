@@ -1,12 +1,13 @@
 {% extends 'core/base.html' %}
 {% load form_tags %}
 
-{% block title %}Create CV{% endblock %}
+{% block title %}{% if edit_mode %}Edit{% else %}Create{% endif %} CV{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2 class="mb-4">Create Your CV</h2>
-    <form method="post" id="cv-form" class="needs-validation" novalidate enctype="multipart/form-data" action="{% url 'documents:cv_create' %}">
+    <h2 class="mb-4">{% if edit_mode %}Edit{% else %}Create{% endif %} Your CV</h2>
+    <form method="post" id="cv-form" class="needs-validation" novalidate enctype="multipart/form-data" 
+          action="{% if edit_mode %}{% url 'documents:cv_edit' cv.id %}{% else %}{% url 'documents:cv_create' %}{% endif %}">
         {% csrf_token %}
         <input type="hidden" name="template" value="{{ template_id }}">
         
@@ -209,208 +210,325 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Work Experience (already implemented)
-    const workExperienceContainer = document.getElementById('work-experience-container');
-    document.getElementById('add-work-experience').addEventListener('click', function() {
-        const workExp = document.createElement('div');
-        workExp.className = 'work-experience-entry border-bottom pb-3 mb-3';
-        workExp.innerHTML = `
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Job Title</label>
-                    <input type="text" class="form-control" name="job_title[]" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Company Name</label>
-                    <input type="text" class="form-control" name="company_name[]" required>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Location</label>
-                    <input type="text" class="form-control" name="work_location[]" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Start Date</label>
-                    <input type="date" class="form-control" name="work_start_date[]" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">End Date</label>
-                    <input type="date" class="form-control" name="work_end_date[]">
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Responsibilities & Achievements</label>
-                <textarea class="form-control" name="work_responsibilities[]" rows="3" required></textarea>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
-        `;
-        workExperienceContainer.appendChild(workExp);
-    });
+    // Initialize dynamic sections if in edit mode
+    {% if edit_mode %}
+        // Initialize work experience entries
+        {% for exp in work_experience %}
+            addWorkExperience({
+                jobTitle: '{{ exp.job_title|escapejs }}',
+                companyName: '{{ exp.company_name|escapejs }}',
+                location: '{{ exp.location|escapejs }}',
+                startDate: '{{ exp.start_date|escapejs }}',
+                endDate: '{{ exp.end_date|default:""|escapejs }}',
+                responsibilities: `{{ exp.responsibilities|join:"\n"|escapejs }}`
+            });
+        {% endfor %}
 
-    // Education
-    const educationContainer = document.getElementById('education-container');
-    document.getElementById('add-education').addEventListener('click', function() {
-        const education = document.createElement('div');
-        education.className = 'education-entry border-bottom pb-3 mb-3';
-        education.innerHTML = `
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Degree/Certificate</label>
-                    <input type="text" class="form-control" name="degree[]" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Institution</label>
-                    <input type="text" class="form-control" name="institution[]" required>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Location</label>
-                    <input type="text" class="form-control" name="education_location[]" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Start Date</label>
-                    <input type="date" class="form-control" name="education_start_date[]" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">End Date</label>
-                    <input type="date" class="form-control" name="education_end_date[]">
-                </div>
-                <div class="col-md-2 mb-3">
-                    <label class="form-label">Grade</label>
-                    <input type="text" class="form-control" name="grade[]">
-                </div>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
-        `;
-        educationContainer.appendChild(education);
-    });
+        // Initialize education entries
+        {% for edu in education %}
+            addEducation({
+                degree: '{{ edu.degree|escapejs }}',
+                institution: '{{ edu.institution|escapejs }}',
+                location: '{{ edu.location|escapejs }}',
+                startDate: '{{ edu.start_date|escapejs }}',
+                endDate: '{{ edu.end_date|default:""|escapejs }}',
+                grade: '{{ edu.grade|escapejs }}'
+            });
+        {% endfor %}
 
-    // Skills
-    const skillsContainer = document.getElementById('skills-container');
-    document.getElementById('add-skill').addEventListener('click', function() {
-        const skill = document.createElement('div');
-        skill.className = 'skill-entry d-flex align-items-center gap-2 mb-2';
-        skill.innerHTML = `
-            <input type="text" class="form-control" name="skill_name[]" placeholder="Skill" required>
-            <select class="form-select" name="skill_type[]" required>
-                <option value="hard">Hard Skill</option>
-                <option value="soft">Soft Skill</option>
-            </select>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
-        `;
-        skillsContainer.appendChild(skill);
-    });
+        // Initialize skills
+        {% for skill in skills %}
+            addSkill({
+                name: '{{ skill.name|escapejs }}',
+                type: '{{ skill.type|escapejs }}'
+            });
+        {% endfor %}
 
-    // Certifications
-    const certificationsContainer = document.getElementById('certifications-container');
-    document.getElementById('add-certification').addEventListener('click', function() {
-        const cert = document.createElement('div');
-        cert.className = 'certification-entry border-bottom pb-3 mb-3';
-        cert.innerHTML = `
+        // Initialize certifications
+        {% for cert in certifications %}
+            addCertification({
+                certificateChoice: '{{ cert.certificate_choice|default:"other"|escapejs }}',
+                customCertificate: '{{ cert.custom_certificate|escapejs }}',
+                issuingOrganization: '{{ cert.issuing_organization|escapejs }}',
+                dateEarned: '{{ cert.date_earned|date:"Y-m-d"|escapejs }}'
+            });
+        {% endfor %}
+
+        // Initialize languages
+        {% for lang in languages %}
+            addLanguage({
+                language: '{{ lang.language|escapejs }}',
+                proficiency: '{{ lang.proficiency|escapejs }}'
+            });
+        {% endfor %}
+
+        // Initialize hobbies
+        {% for hobby in hobbies %}
+            addHobby('{{ hobby|escapejs }}');
+        {% endfor %}
+
+        // Initialize referees
+        {% for ref in referees %}
+            addReferee({
+                name: '{{ ref.name|escapejs }}',
+                job: '{{ ref.job|escapejs }}',
+                email: '{{ ref.email|escapejs }}',
+                phone: '{{ ref.phone|escapejs }}'
+            });
+        {% endfor %}
+    {% endif %}
+
+    // Function to add work experience
+    function addWorkExperience(data = null) {
+        const container = document.getElementById('work-experience-container');
+        const index = container.children.length;
+        const template = `
+            <div class="work-experience-entry border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" name="job_title[]" class="form-control" value="${data ? data.jobTitle : ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" name="company_name[]" class="form-control" value="${data ? data.companyName : ''}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" name="location[]" class="form-control" value="${data ? data.location : ''}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="start_date[]" class="form-control" value="${data ? data.startDate : ''}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="end_date[]" class="form-control" value="${data ? data.endDate : ''}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Responsibilities</label>
+                    <textarea name="responsibilities[]" class="form-control" rows="3">${data ? data.responsibilities : ''}</textarea>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Function to add education
+    function addEducation(data = null) {
+        const container = document.getElementById('education-container');
+        const index = container.children.length;
+        const template = `
+            <div class="education-entry border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Degree/Qualification</label>
+                        <input type="text" name="degree[]" class="form-control" value="${data ? data.degree : ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Institution</label>
+                        <input type="text" name="institution[]" class="form-control" value="${data ? data.institution : ''}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" name="location[]" class="form-control" value="${data ? data.location : ''}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="start_date[]" class="form-control" value="${data ? data.startDate : ''}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="end_date[]" class="form-control" value="${data ? data.endDate : ''}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Grade/Result</label>
+                    <input type="text" name="grade[]" class="form-control" value="${data ? data.grade : ''}">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Function to add skill
+    function addSkill(data = null) {
+        const container = document.getElementById('skills-container');
+        const template = `
+            <div class="skill-entry border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Skill Name</label>
+                        <input type="text" name="skill_name[]" class="form-control" value="${data ? data.name : ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Type</label>
+                        <select name="skill_type[]" class="form-control">
+                            <option value="hard" ${data && data.type === 'hard' ? 'selected' : ''}>Hard Skill</option>
+                            <option value="soft" ${data && data.type === 'soft' ? 'selected' : ''}>Soft Skill</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Function to add certification
+    function addCertification(data = null) {
+        const container = document.getElementById('certifications-container');
+        const index = container.children.length;
+        
+        const certificationDiv = document.createElement('div');
+        certificationDiv.className = 'certification-entry border rounded p-3 mb-3 position-relative';
+        
+        const html = `
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" onclick="this.parentElement.remove()"></button>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Certificate Name</label>
-                    <input type="text" class="form-control" name="certificate_name[]" required>
+                    <label class="form-label">Certification</label>
+                    <select name="certifications[${index}][certificate_choice]" class="form-control certification-select" required>
+                        {% for choice in certification_choices %}
+                        <option value="{{ choice.0 }}" ${data && data.certificateChoice === '{{ choice.0 }}' ? 'selected' : ''}>
+                            {{ choice.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="certifications[${index}][custom_certificate]" 
+                           class="form-control mt-2 custom-certificate" 
+                           placeholder="Enter custom certification name"
+                           style="display: none;"
+                           ${data && data.certificateChoice === 'other' ? 'required' : ''}>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Issuing Organization</label>
-                    <input type="text" class="form-control" name="issuing_organization[]" required>
+                    <input type="text" name="certifications[${index}][issuing_organization]" 
+                           class="form-control" required
+                           value="${data ? data.issuingOrganization : ''}">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Date Earned</label>
-                    <input type="date" class="form-control" name="date_earned[]" required>
+                    <input type="date" name="certifications[${index}][date_earned]" 
+                           class="form-control" required
+                           value="${data ? data.dateEarned : ''}">
                 </div>
             </div>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
         `;
-        certificationsContainer.appendChild(cert);
-    });
-
-    // Languages
-    const languagesContainer = document.getElementById('languages-container');
-    document.getElementById('add-language').addEventListener('click', function() {
-        const lang = document.createElement('div');
-        lang.className = 'language-entry d-flex align-items-center gap-2 mb-2';
-        lang.innerHTML = `
-            <input type="text" class="form-control" name="language[]" placeholder="Language" required>
-            <select class="form-select" name="proficiency[]" required>
-                <option value="basic">Basic</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="fluent">Fluent</option>
-                <option value="native">Native</option>
-            </select>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
-        `;
-        languagesContainer.appendChild(lang);
-    });
-
-    // Hobbies
-    const hobbiesContainer = document.getElementById('hobbies-container');
-    document.getElementById('add-hobby').addEventListener('click', function() {
-        const hobby = document.createElement('div');
-        hobby.className = 'hobby-entry d-flex align-items-center gap-2 mb-2';
-        hobby.innerHTML = `
-            <input type="text" class="form-control" name="hobby[]" placeholder="Hobby/Interest" required>
-            <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
-        `;
-        hobbiesContainer.appendChild(hobby);
-    });
-
-    // Add Referee
-    document.getElementById('add-referee').addEventListener('click', function() {
-        const container = document.getElementById('referees-container');
-        const entry = document.createElement('div');
-        entry.className = 'referee-entry border rounded p-3 mb-3';
-        entry.innerHTML = `
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" name="referee_name[]" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Current Job Title</label>
-                    <input type="text" class="form-control" name="referee_job[]" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="referee_email[]" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" name="referee_phone[]" required>
-                </div>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm mt-3 remove-entry">Remove</button>
-        `;
-        container.appendChild(entry);
-    });
-
-    // Form validation and submission
-    const form = document.getElementById('cv-form');
-    form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-
-        // Add event handler for dynamic fields
-        const formData = new FormData(form);
         
-        // Prevent default only if validation fails
-        if (!form.checkValidity()) {
-            event.preventDefault();
-        }
-    });
+        certificationDiv.innerHTML = html;
+        container.appendChild(certificationDiv);
 
-    // Update the remove entry functionality to include referee entries
+        // Add event listener to the new certification select
+        const select = certificationDiv.querySelector('.certification-select');
+        const customInput = certificationDiv.querySelector('.custom-certificate');
+        
+        select.addEventListener('change', function() {
+            if (this.value === 'other') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                customInput.value = '';
+            }
+        });
+    }
+
+    // Function to add language
+    function addLanguage(data = null) {
+        const container = document.getElementById('languages-container');
+        const template = `
+            <div class="language-entry border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Language</label>
+                        <input type="text" name="language[]" class="form-control" value="${data ? data.language : ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Proficiency</label>
+                        <select name="proficiency[]" class="form-control">
+                            <option value="basic" ${data && data.proficiency === 'basic' ? 'selected' : ''}>Basic</option>
+                            <option value="intermediate" ${data && data.proficiency === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                            <option value="fluent" ${data && data.proficiency === 'fluent' ? 'selected' : ''}>Fluent</option>
+                            <option value="native" ${data && data.proficiency === 'native' ? 'selected' : ''}>Native</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Function to add hobby
+    function addHobby(data = null) {
+        const container = document.getElementById('hobbies-container');
+        const template = `
+            <div class="hobby-entry border rounded p-3 mb-3">
+                <div class="mb-3">
+                    <label class="form-label">Hobby/Interest</label>
+                    <input type="text" name="hobby[]" class="form-control" value="${data || ''}" required>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Function to add referee
+    function addReferee(data = null) {
+        const container = document.getElementById('referees-container');
+        const template = `
+            <div class="referee-entry border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" name="referee_name[]" class="form-control" value="${data ? data.name : ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" name="referee_job[]" class="form-control" value="${data ? data.job : ''}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="referee_email[]" class="form-control" value="${data ? data.email : ''}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" name="referee_phone[]" class="form-control" value="${data ? data.phone : ''}">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-entry">Remove</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+    }
+
+    // Add button event listeners
+    document.getElementById('add-work-experience').addEventListener('click', () => addWorkExperience());
+    document.getElementById('add-education').addEventListener('click', () => addEducation());
+    document.getElementById('add-skill').addEventListener('click', () => addSkill());
+    document.getElementById('add-certification').addEventListener('click', () => addCertification());
+    document.getElementById('add-language').addEventListener('click', () => addLanguage());
+    document.getElementById('add-hobby').addEventListener('click', () => addHobby());
+    document.getElementById('add-referee').addEventListener('click', () => addReferee());
+
+    // Remove entry functionality
     document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('remove-entry')) {
-            e.target.closest('.work-experience-entry, .education-entry, .skill-entry, .certification-entry, .language-entry, .hobby-entry, .referee-entry').remove();
+        if (e.target.classList.contains('remove-entry')) {
+            e.target.closest('[class$="-entry"]').remove();
         }
     });
 });

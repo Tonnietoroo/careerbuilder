@@ -1,6 +1,7 @@
 from django import forms
 from .models import CV, CoverLetter, CVTemplate
 from interviews.models import InterviewPrep
+from .choices import CERTIFICATION_CHOICES
 
 
 class CVForm(forms.ModelForm):
@@ -108,9 +109,33 @@ class SkillForm(forms.Form):
     skill_type = forms.ChoiceField(choices=[('hard', 'Hard Skill'), ('soft', 'Soft Skill')])
 
 class CertificationForm(forms.Form):
-    certificate_name = forms.CharField(max_length=100)
-    issuing_organization = forms.CharField(max_length=100)
-    date_earned = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    certificate_choice = forms.ChoiceField(
+        choices=CERTIFICATION_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'certificate_choice'
+        })
+    )
+    custom_certificate = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'custom_certificate',
+            'placeholder': 'Enter custom certification name',
+            'style': 'display: none;'
+        })
+    )
+    issuing_organization = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    date_earned = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
 
 class LanguageForm(forms.Form):
     PROFICIENCY_CHOICES = [
